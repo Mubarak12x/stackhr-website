@@ -3,15 +3,17 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
+  AlertCircle,
   BadgeCheck,
   Check,
+  CheckCircle2,
   ChevronDown,
   Globe2,
   Lock,
   Rocket,
   ShieldCheck,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CalendlyEmbed } from '../components/CalendlyEmbed';
 
 const TAGLINE = 'Manage your people, payroll, and business spending in one place';
@@ -143,19 +145,16 @@ const testimonials = [
     quote:
       'Before StackHR, our payroll took a full day every month. Now it’s automated, accurate, and our team gets paid on time every single time. We’ve saved 10+ hours per month.',
     attribution: 'Finance Lead, Tech Company (50+ employees)',
-    label: 'Automation',
   },
   {
     quote:
       'Managing expense claims was chaos. StackHR’s approval workflow cut our reimbursement cycle from 2 weeks to 2 days. Our team loves the transparency.',
     attribution: 'Operations Manager, Fintech Startup (30+ employees)',
-    label: 'Speed',
   },
   {
     quote:
       'As a growing African business, compliance is critical. StackHR handles NDPA requirements automatically. No more legal headaches—just confidence.',
     attribution: 'Founder & CEO, Agritech Platform (20+ employees)',
-    label: 'Compliance',
   },
 ];
 
@@ -163,8 +162,7 @@ const updates = [
   {
     date: 'July 7, 2026',
     title: 'StackHR Beta Launch: A New Way to Do HR in Africa',
-    excerpt:
-      'Today, we’re opening StackHR to a limited cohort of African SMEs. Here’s what’s inside on day one...',
+    excerpt: 'Today, we’re opening StackHR to a limited cohort of African SMEs. Here’s what’s inside on day one…',
     cta: 'Read Full Post',
   },
   {
@@ -206,7 +204,7 @@ const complianceItems = [
 
 const faqs = [
   {
-    question: "What's included in the Free tier?",
+    question: "What’s included in the Free tier?",
     answer: 'Employee profiles, leave management, and manual payroll. Perfect for getting started. Upgrade anytime.',
   },
   {
@@ -236,13 +234,86 @@ const faqs = [
   },
 ];
 
+/** Primary solid CTA button — fully opaque #0066FF for WCAG AA contrast */
+function PrimaryButton({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-full bg-[#0066FF] px-7 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#0052cc] hover:shadow-[0_0_24px_rgba(0,102,255,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2 ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** Secondary outline CTA button */
+function OutlineButton({ href, children, className = '' }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center justify-center rounded-full border-2 border-[#0066FF] bg-transparent px-7 py-3 text-sm font-semibold text-[#0066FF] transition hover:bg-[#0066FF] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2 dark:text-[#4d94ff] dark:hover:text-white ${className}`}
+    >
+      {children}
+    </a>
+  );
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Waitlist form state
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [waitlistError, setWaitlistError] = useState('');
+  const errorId = 'waitlist-error';
+
+  useEffect(() => {
+    function onScroll() {
+      const bottom = heroRef.current?.getBoundingClientRect().bottom ?? 0;
+      setShowStickyBar(bottom < 0);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  async function handleWaitlist(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setWaitlistError('');
+
+    if (!waitlistEmail.trim() || !isValidEmail(waitlistEmail)) {
+      setWaitlistError('Please enter a valid email address.');
+      setWaitlistStatus('idle');
+      return;
+    }
+
+    setWaitlistStatus('loading');
+    try {
+      // Replace with real endpoint when available
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      setWaitlistStatus('success');
+      setWaitlistEmail('');
+    } catch {
+      setWaitlistStatus('error');
+      setWaitlistError('Something went wrong. Please try again.');
+    }
+  }
+
+  const hasError = !!waitlistError;
 
   return (
-    <main className="min-h-screen pb-16">
-      {/* A. Hero */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-center">
+    <main className="min-h-screen pb-20 md:pb-16">
+      {/* ── A. Hero ───────────────────────────────────────── */}
+      <section
+        ref={heroRef}
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-center"
+      >
         <div className="gradient-hero pointer-events-none absolute inset-0 opacity-[0.06] dark:opacity-[0.14]" />
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -left-20 top-10 h-72 w-72 animate-blob rounded-full bg-electric-blue/30 blur-3xl filter" />
@@ -251,31 +322,37 @@ export default function Home() {
         </div>
 
         <div className="container relative">
-          <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-            <h1 className="mx-auto max-w-4xl text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-6xl">
-              Complete HR, Payroll & <span className="gradient-text">Spend Control</span> for African SMEs
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Issue 2: extrabold, clear dominant h1 */}
+            <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight text-slate-950 dark:text-white sm:text-6xl">
+              Complete HR, Payroll &{' '}
+              <span className="gradient-text">Spend Control</span>{' '}
+              for African SMEs
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base font-medium text-electric-blue sm:text-lg">{TAGLINE}</p>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">
-              All-in-one people operations, payroll automation, and expense management built for Nigerian and African
-              businesses. From employee onboarding to salary advances—everything in one platform.
+
+            {/* Supporting subline — one clear description, no competing tagline above it */}
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">
+              All-in-one people operations, payroll automation, and expense management built for Nigerian and
+              African businesses. From employee onboarding to salary advances—everything in one platform.
             </p>
+
+            {/* Issue 1+3: Primary solid CTA (full-width mobile), secondary outline (no glass) */}
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <CalendlyEmbed
                 trigger={
-                  <span className="glow-blue-hover btn-hover-bright inline-flex items-center justify-center rounded-full bg-electric-blue px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-electric-blue/20 transition hover:-translate-y-0.5">
-                    Book Demo
-                  </span>
+                  <PrimaryButton className="w-full min-h-[52px] sm:w-auto">Book Demo</PrimaryButton>
                 }
               />
-              <a
+              <OutlineButton
                 href="https://app.stackhr.app/login"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glass dark:glass-dark inline-flex items-center justify-center px-7 py-3 text-sm font-semibold text-slate-800 transition hover:border-electric-blue hover:text-electric-blue dark:text-slate-100"
+                className="w-full min-h-[52px] sm:w-auto"
               >
                 Start Free Trial
-              </a>
+              </OutlineButton>
             </div>
           </motion.div>
 
@@ -300,24 +377,78 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* B. Launch Announcement Banner */}
-      <section className="container">
-        <motion.div {...fadeUp} className="glass-card flex flex-col items-center justify-between gap-4 rounded-[24px] border border-slate-200/50 p-6 text-center dark:border-slate-700/50 sm:flex-row sm:text-left">
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-            🚀 Beta Launch: July 7, 2026 - StackHR opens to limited African SMEs. Early adopters get lifetime free
-            tier access.
-          </p>
-          <a href="#pricing" className="btn-hover-bright inline-flex flex-shrink-0 items-center justify-center rounded-full bg-electric-blue px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-electric-blue/20 transition">
-            Join Waitlist
-          </a>
+      {/* ── B. Launch Banner + Waitlist Form (Issue 5+10) ── */}
+      <section className="container py-0">
+        <motion.div
+          {...fadeUp}
+          className="glass-card rounded-[24px] border border-slate-200/50 p-6 dark:border-slate-700/50"
+        >
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              🚀 <span className="font-semibold">Beta Launch: July 7, 2026</span> — StackHR opens to limited
+              African SMEs. Early adopters get lifetime free tier access.
+            </p>
+
+            {waitlistStatus === 'success' ? (
+              <div className="flex flex-shrink-0 items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-sm font-semibold text-success">
+                <CheckCircle2 className="h-4 w-4" />
+                You&apos;re on the list!
+              </div>
+            ) : (
+              <form onSubmit={handleWaitlist} className="flex flex-shrink-0 flex-col gap-2" noValidate>
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="waitlist-email" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      id="waitlist-email"
+                      type="email"
+                      name="email"
+                      placeholder="you@company.com"
+                      value={waitlistEmail}
+                      onChange={(e) => {
+                        setWaitlistEmail(e.target.value);
+                        if (waitlistError) setWaitlistError('');
+                        if (waitlistStatus === 'error') setWaitlistStatus('idle');
+                      }}
+                      aria-invalid={hasError || undefined}
+                      aria-describedby={hasError ? errorId : undefined}
+                      className={`h-12 w-full min-w-[200px] rounded-full border px-4 text-sm text-slate-900 placeholder-slate-400 transition focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 dark:bg-zinc-900 dark:text-white dark:placeholder-slate-500 ${
+                        hasError
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-slate-300 dark:border-slate-600'
+                      }`}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={waitlistStatus === 'loading'}
+                    className="h-12 flex-shrink-0 rounded-full bg-[#0066FF] px-5 text-sm font-semibold text-white transition hover:bg-[#0052cc] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
+                  >
+                    {waitlistStatus === 'loading' ? 'Joining…' : 'Join Waitlist'}
+                  </button>
+                </div>
+
+                {/* Issue 5: inline error message with icon, red border, aria wiring */}
+                {hasError && (
+                  <p id={errorId} role="alert" className="flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    {waitlistError}
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
         </motion.div>
       </section>
 
-      {/* C. Three Pillars */}
-      <section id="features" className="container mt-24">
-        <motion.div {...fadeUp} className="text-center">
+      {/* ── C. Three Pillars ─────────────────────────────── */}
+      <section id="features" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="space-y-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-electric-blue">What StackHR does</p>
-          <h2 className="mt-3 text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">
+          {/* Issue 8: extrabold h2 */}
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
             Three pillars, one platform.
           </h2>
         </motion.div>
@@ -330,12 +461,16 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="glow-blue-hover glass-card flex flex-col rounded-[24px] border border-slate-200/50 p-8 transition-shadow dark:border-slate-700/50"
             >
-              <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${pillar.iconGradient} p-3`}>
+              <div
+                className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${pillar.iconGradient} p-3`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element -- decorative SVG icon */}
                 <img src={pillar.icon} alt="" className="h-full w-full" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-slate-950 dark:text-white">{pillar.headline}</h3>
-              <ul className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              {/* Issue 8: clear h3 weight */}
+              <h3 className="mt-5 text-xl font-bold text-slate-950 dark:text-white">{pillar.headline}</h3>
+              {/* Issue 7: text-slate-700 (light) / text-slate-200 (dark) for body on glass */}
+              <ul className="mt-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
                 {pillar.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
                     <Check className="mt-1 h-4 w-4 flex-shrink-0 text-electric-blue" />
@@ -352,7 +487,10 @@ export default function Home() {
                   className="h-auto w-full object-cover"
                 />
               </div>
-              <a href="#pricing" className="mt-6 inline-flex items-center text-sm font-semibold text-electric-blue transition hover:underline">
+              <a
+                href="#pricing"
+                className="mt-6 inline-flex items-center text-sm font-semibold text-[#0066FF] transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
+              >
                 {pillar.cta} →
               </a>
             </motion.div>
@@ -360,11 +498,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* D. Pricing */}
-      <section id="pricing" className="container mt-24">
-        <motion.div {...fadeUp} className="text-center">
-          <h2 className="text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">Simple, Transparent Pricing</h2>
-          <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+      {/* ── D. Pricing ───────────────────────────────────── */}
+      <section id="pricing" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="space-y-4 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
+            Simple, Transparent Pricing
+          </h2>
+          <p className="text-sm leading-7 text-slate-700 dark:text-slate-300">
             Per-seat monthly billing. No hidden fees. Cancel anytime.
           </p>
         </motion.div>
@@ -376,27 +516,34 @@ export default function Home() {
               {...fadeUp}
               whileHover={{ y: -4, scale: 1.02 }}
               className={`glow-blue-hover glass-card flex flex-col rounded-[24px] border p-8 transition-shadow dark:border-slate-700/50 ${
-                tier.highlight ? 'border-electric-blue/40 bg-gradient-to-b from-electric-blue/5 to-transparent shadow-[0_0_30px_rgba(0,102,255,0.15)]' : ''
+                tier.highlight
+                  ? 'border-electric-blue/40 bg-gradient-to-b from-electric-blue/5 to-transparent shadow-[0_0_30px_rgba(0,102,255,0.15)]'
+                  : ''
               }`}
             >
               {tier.badge && (
                 <span
                   className={`mb-4 inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
-                    tier.highlight ? 'bg-gradient-to-r from-electric-blue to-success text-white' : 'bg-electric-blue/10 text-electric-blue'
+                    tier.highlight
+                      ? 'bg-gradient-to-r from-electric-blue to-success text-white'
+                      : 'bg-electric-blue/10 text-electric-blue'
                   }`}
                 >
                   {tier.badge}
                 </span>
               )}
-              <p className="text-lg font-semibold text-slate-950 dark:text-white">{tier.name}</p>
+              <p className="text-lg font-bold text-slate-950 dark:text-white">{tier.name}</p>
               <div className="mt-4">
-                <p className="text-3xl font-semibold text-slate-950 dark:text-white">
+                <p className="text-3xl font-extrabold text-slate-950 dark:text-white">
                   {tier.price}
-                  <span className="text-base font-normal text-slate-500 dark:text-slate-400">{tier.suffix}</span>
+                  <span className="text-base font-normal text-slate-600 dark:text-slate-300">{tier.suffix}</span>
                 </p>
-                {tier.description && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{tier.description}</p>}
+                {/* Issue 7: upgraded from slate-500/slate-400 */}
+                {tier.description && (
+                  <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{tier.description}</p>
+                )}
               </div>
-              <ul className="mt-6 flex-1 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <ul className="mt-6 flex-1 space-y-3 text-sm text-slate-700 dark:text-slate-200">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
                     <Check className="mt-1 h-4 w-4 flex-shrink-0 text-electric-blue" />
@@ -408,10 +555,10 @@ export default function Home() {
                 href={tier.name === 'Enterprise' ? 'mailto:hello@stackhr.app' : 'https://app.stackhr.app/login'}
                 target={tier.name === 'Enterprise' ? undefined : '_blank'}
                 rel={tier.name === 'Enterprise' ? undefined : 'noopener noreferrer'}
-                className={`btn-hover-bright mt-8 inline-flex w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition ${
+                className={`mt-8 inline-flex min-h-[44px] w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2 ${
                   tier.highlight
-                    ? 'bg-electric-blue text-white shadow-lg shadow-electric-blue/20'
-                    : 'border border-slate-200 bg-white/80 text-slate-900 hover:border-electric-blue hover:text-electric-blue dark:border-slate-700 dark:bg-zinc-900/80 dark:text-slate-100'
+                    ? 'bg-[#0066FF] text-white shadow-lg hover:bg-[#0052cc]'
+                    : 'border-2 border-[#0066FF] bg-transparent text-[#0066FF] hover:bg-[#0066FF] hover:text-white dark:text-[#4d94ff] dark:hover:text-white'
                 }`}
               >
                 {tier.cta}
@@ -420,8 +567,11 @@ export default function Home() {
           ))}
         </div>
 
-        <motion.div {...fadeUp} className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
-          <span className="font-semibold text-slate-800 dark:text-slate-100">All plans include:</span>
+        <motion.div
+          {...fadeUp}
+          className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-700 dark:text-slate-200"
+        >
+          <span className="font-bold text-slate-900 dark:text-white">All plans include:</span>
           {includedBadges.map((badge) => (
             <span key={badge} className="inline-flex items-center gap-1.5">
               <BadgeCheck className="h-4 w-4 text-success" /> {badge}
@@ -430,13 +580,13 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* E. Social Proof */}
-      <section className="container mt-24">
-        <motion.div {...fadeUp} className="text-center">
-          <h2 className="text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">
+      {/* ── E. Testimonials ──────────────────────────────── */}
+      <section className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="space-y-4 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
             Trusted by Forward-Thinking Companies
           </h2>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">From fintech startups to agritech scale-ups.</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">From fintech startups to agritech scale-ups.</p>
         </motion.div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -449,18 +599,21 @@ export default function Home() {
               className="glow-blue-hover glass-card rounded-[24px] border border-slate-200/50 p-8 transition-shadow dark:border-slate-700/50"
             >
               <BadgeCheck className="h-8 w-8 text-success" />
-              <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">“{testimonial.quote}”</p>
-              <p className="mt-6 text-sm font-semibold text-slate-900 dark:text-white">{testimonial.attribution}</p>
+              {/* Issue 7: text-slate-700/slate-200 instead of slate-600/slate-300 */}
+              <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-200">
+                &ldquo;{testimonial.quote}&rdquo;
+              </p>
+              <p className="mt-6 text-sm font-bold text-slate-900 dark:text-white">{testimonial.attribution}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* F. Recent Updates */}
-      <section id="updates" className="container mt-24">
-        <motion.div {...fadeUp} className="text-center">
-          <h2 className="text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">Latest Updates</h2>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">Stay in the loop on new features and releases</p>
+      {/* ── F. Recent Updates ────────────────────────────── */}
+      <section id="updates" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="space-y-4 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">Latest Updates</h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300">Stay in the loop on new features and releases</p>
         </motion.div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -471,9 +624,12 @@ export default function Home() {
               className="glass-card flex flex-col rounded-[24px] border border-slate-200/50 p-8 dark:border-slate-700/50"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-electric-blue">{update.date}</p>
-              <h3 className="mt-3 text-lg font-semibold text-slate-950 dark:text-white">{update.title}</h3>
-              <p className="mt-3 flex-1 text-sm leading-7 text-slate-600 dark:text-slate-300">{update.excerpt}</p>
-              <a href="#" className="mt-6 inline-flex items-center text-sm font-semibold text-electric-blue transition hover:underline">
+              <h3 className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{update.title}</h3>
+              <p className="mt-3 flex-1 text-sm leading-7 text-slate-700 dark:text-slate-200">{update.excerpt}</p>
+              <a
+                href="#"
+                className="mt-6 inline-flex items-center text-sm font-semibold text-[#0066FF] transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
+              >
                 {update.cta} →
               </a>
             </motion.div>
@@ -481,45 +637,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* G. Compliance */}
-      <section id="status" className="container mt-24">
-        <motion.div {...fadeUp} className="text-center">
-          <h2 className="text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">
+      {/* ── G. Compliance ────────────────────────────────── */}
+      <section id="status" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="space-y-4 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
             Built for African Regulations & Currencies
           </h2>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-slate-700 dark:text-slate-300">
             Compliance, security, and local payment support—baked in from day one.
           </p>
         </motion.div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {complianceItems.map((item) => (
-            <motion.div key={item.title} {...fadeUp} className="glass-card rounded-[24px] border border-slate-200/50 p-8 dark:border-slate-700/50">
+            <motion.div
+              key={item.title}
+              {...fadeUp}
+              className="glass-card rounded-[24px] border border-slate-200/50 p-8 dark:border-slate-700/50"
+            >
               <item.icon className="h-10 w-10 text-electric-blue" />
-              <h3 className="mt-5 text-lg font-semibold text-slate-950 dark:text-white">{item.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{item.description}</p>
+              <h3 className="mt-5 text-lg font-bold text-slate-950 dark:text-white">{item.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">{item.description}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* H. FAQ */}
-      <section id="faq" className="container mt-24">
-        <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
+      {/* ── H. FAQ ───────────────────────────────────────── */}
+      <section id="faq" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="mx-auto max-w-3xl space-y-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-electric-blue">FAQ</p>
-          <h2 className="mt-3 text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
             Frequently asked questions
           </h2>
         </motion.div>
 
         <div className="mx-auto mt-10 max-w-3xl space-y-4">
           {faqs.map((item, index) => (
-            <div key={item.question} className="glass-card rounded-[20px] border border-slate-200/60 p-5 dark:border-slate-700/60">
+            <div
+              key={item.question}
+              className="glass-card rounded-[20px] border border-slate-200/60 p-5 dark:border-slate-700/60"
+            >
               <button
                 type="button"
                 onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="flex w-full items-center justify-between gap-4 text-left text-sm font-semibold text-slate-950 dark:text-white"
-                aria-expanded={openFaq === index ? 'true' : 'false'}
+                className="flex min-h-[44px] w-full items-center justify-between gap-4 text-left text-sm font-semibold text-slate-950 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
+                aria-expanded={openFaq === index}
               >
                 <span>{item.question}</span>
                 <ChevronDown
@@ -534,40 +697,53 @@ export default function Home() {
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 className="overflow-hidden"
               >
-                <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{item.answer}</p>
+                <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-200">{item.answer}</p>
               </motion.div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* I. Final CTA */}
-      <section className="container mt-24">
-        <motion.div {...fadeUp} className="glass-card flex flex-col items-center gap-6 rounded-[32px] border border-slate-200/50 p-12 text-center dark:border-slate-700/50">
+      {/* ── I. Final CTA ─────────────────────────────────── */}
+      <section className="container py-16 md:py-24">
+        <motion.div
+          {...fadeUp}
+          className="glass-card flex flex-col items-center gap-6 rounded-[32px] border border-slate-200/50 p-12 text-center dark:border-slate-700/50"
+        >
           <Rocket className="h-10 w-10 text-electric-blue" />
-          <h2 className="text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">Ready to Transform Your HR?</h2>
-          <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
+            Ready to Transform Your HR?
+          </h2>
+          <p className="max-w-xl text-sm leading-7 text-slate-700 dark:text-slate-200">
             Join the beta and see why African businesses are switching to StackHR.
           </p>
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row">
             <CalendlyEmbed
               trigger={
-                <span className="btn-hover-bright inline-flex items-center justify-center rounded-full bg-electric-blue px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-electric-blue/20 transition hover:-translate-y-0.5">
-                  Book Demo
-                </span>
+                <PrimaryButton className="w-full sm:w-auto">Book Demo</PrimaryButton>
               }
             />
-            <a
-              href="https://app.stackhr.app/login"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 px-7 py-3 text-sm font-semibold text-slate-800 transition hover:border-electric-blue hover:text-electric-blue dark:border-slate-700 dark:bg-zinc-900/80 dark:text-slate-100"
-            >
+            <OutlineButton href="https://app.stackhr.app/login" className="w-full sm:w-auto">
               Start Free Trial
-            </a>
+            </OutlineButton>
           </div>
         </motion.div>
       </section>
+
+      {/* ── Issue 3: Sticky mobile bottom CTA bar ─────────── */}
+      {showStickyBar && (
+        <div
+          className="safe-area-pb fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/60 bg-white/90 backdrop-blur-md dark:border-slate-700/60 dark:bg-zinc-950/90 md:hidden"
+        >
+          <div className="container py-3">
+            <CalendlyEmbed
+              trigger={
+                <PrimaryButton className="w-full min-h-[52px]">Book Demo — Free</PrimaryButton>
+              }
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

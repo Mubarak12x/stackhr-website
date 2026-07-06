@@ -162,3 +162,18 @@ html.dark .glass-card {
 .float {
   animation: float 3s ease-in-out infinite;
 }
+
+/* Issue 3: safe-area padding for sticky mobile CTA bar */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Issue 4: Global keyboard focus ring — covers all interactive elements */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0066FF;
+}
+
+html.dark :focus-visible {
+  box-shadow: 0 0 0 2px #0f0f0f, 0 0 0 4px #0066FF;
+}
