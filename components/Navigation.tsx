@@ -11,8 +11,8 @@ const navLinks = [
   { label: 'Pricing', href: '#pricing' },
   { label: 'Features', href: '#features' },
   { label: 'About', href: '#about' },
-  { label: 'Blog', href: '#updates' },
-  { label: 'Status', href: '#status' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Compliance', href: '#status' },
 ];
 
 export function Navigation() {

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { CalendlyEmbed } from '../components/CalendlyEmbed';
+import { PrimaryButton, OutlineButton } from '../components/Buttons';
 
 const TAGLINE = 'Manage your people, payroll, and business spending in one place';
 
@@ -162,8 +163,9 @@ const updates = [
   {
     date: 'July 7, 2026',
     title: 'StackHR Beta Launch: A New Way to Do HR in Africa',
-    excerpt: 'Today, we’re opening StackHR to a limited cohort of African SMEs. Here’s what’s inside on day one…',
+    excerpt: "Today, we’re opening StackHR to a limited cohort of African SMEs. Here’s what’s inside on day one…",
     cta: 'Read Full Post',
+    href: '/blog/stackhr-beta-launch',
   },
   {
     date: 'June 28, 2026',
@@ -171,13 +173,14 @@ const updates = [
     excerpt:
       'Employees can now request salary advances directly from StackHR. We handle calculations, approvals, and deductions automatically.',
     cta: 'Learn More',
+    href: '/blog/introducing-salary-advances',
   },
   {
     date: 'June 20, 2026',
-    title: 'NDPA 2023 Compliance: We’re Ready',
-    excerpt:
-      'StackHR is fully compliant with Nigeria’s National Data Protection Regulation. Here’s how we protect your data.',
+    title: "NDPA 2023 Compliance: We’re Ready",
+    excerpt: "StackHR is fully compliant with Nigeria’s National Data Protection Regulation. Here’s how we protect your data.",
     cta: 'Read Privacy Policy',
+    href: '/privacy',
   },
 ];
 
@@ -233,31 +236,6 @@ const faqs = [
     answer: 'Yes. Scale & Enterprise plans include REST API access. Connect to your favorite tools.',
   },
 ];
-
-/** Primary solid CTA button — fully opaque #0066FF for WCAG AA contrast */
-function PrimaryButton({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <span
-      className={`inline-flex items-center justify-center rounded-full bg-[#0066FF] px-7 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#0052cc] hover:shadow-[0_0_24px_rgba(0,102,255,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2 ${className}`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/** Secondary outline CTA button */
-function OutlineButton({ href, children, className = '' }: { href: string; children: React.ReactNode; className?: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center justify-center rounded-full border-2 border-[#0066FF] bg-transparent px-7 py-3 text-sm font-semibold text-[#0066FF] transition hover:bg-[#0066FF] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2 dark:text-[#4d94ff] dark:hover:text-white ${className}`}
-    >
-      {children}
-    </a>
-  );
-}
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -498,7 +476,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── D. Pricing ───────────────────────────────────── */}
+      {/* ── D. About ─────────────────────────────────────── */}
+      <section id="about" className="container py-16 md:py-24">
+        <motion.div {...fadeUp} className="mx-auto max-w-3xl space-y-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-electric-blue">About StackHR</p>
+          <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
+            Built for African businesses, from day one.
+          </h2>
+          <p className="mx-auto max-w-2xl text-base leading-8 text-slate-700 dark:text-slate-300">
+            StackHR brings People Operations, Payroll, and Spend Management into a single platform designed
+            for the realities of running a business in Africa — multi-currency payroll, NDPA-aligned data
+            handling, and workflows built around how African SMEs actually operate. We launched in beta on
+            July 7, 2026, with a focused cohort of Nigerian businesses, and we are building in public.
+          </p>
+          <p className="mx-auto max-w-2xl text-base leading-8 text-slate-700 dark:text-slate-300">
+            Questions or feedback?{' '}
+            <a
+              href="mailto:hello@stackhr.app"
+              className="font-semibold text-[#0066FF] transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
+            >
+              hello@stackhr.app
+            </a>
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ── E. Pricing ───────────────────────────────────── */}
       <section id="pricing" className="container py-16 md:py-24">
         <motion.div {...fadeUp} className="space-y-4 text-center">
           <h2 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">
@@ -627,7 +630,7 @@ export default function Home() {
               <h3 className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{update.title}</h3>
               <p className="mt-3 flex-1 text-sm leading-7 text-slate-700 dark:text-slate-200">{update.excerpt}</p>
               <a
-                href="#"
+                href={update.href}
                 className="mt-6 inline-flex items-center text-sm font-semibold text-[#0066FF] transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"
               >
                 {update.cta} →

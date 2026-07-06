@@ -8,16 +8,15 @@ const columns = [
     links: [
       { label: 'Pricing', href: '#pricing' },
       { label: 'Features', href: '#features' },
-      { label: 'Security', href: '#security' },
-      { label: 'Status Page', href: '#status' },
+      { label: 'Security & Data', href: '/data-processing' },
+      { label: 'Compliance', href: '#status' },
     ],
   },
   {
     title: 'Company',
     links: [
       { label: 'About StackHR', href: '#about' },
-      { label: 'Blog', href: '#updates' },
-      { label: 'Careers', href: '#careers' },
+      { label: 'Blog', href: '/blog' },
       { label: 'Contact', href: 'mailto:hello@stackhr.app' },
     ],
   },
