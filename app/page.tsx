@@ -459,7 +459,7 @@ export default function Home() {
               key={pillar.name}
               {...fadeUp}
               whileHover={{ scale: 1.02 }}
-              className="glow-blue-hover glass-card flex flex-col rounded-[24px] border border-slate-200/50 p-8 transition-shadow dark:border-slate-700/50"
+              className="glow-blue-hover glass-card flex flex-col rounded-[24px] border border-slate-200/50 p-5 transition-shadow dark:border-slate-700/50 md:p-8"
             >
               <div
                 className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${pillar.iconGradient} p-3`}
@@ -484,7 +484,7 @@ export default function Home() {
                   alt={`${pillar.name} dashboard preview`}
                   width={450}
                   height={300}
-                  className="h-auto w-full object-cover"
+                  className="h-auto max-h-[220px] w-full object-cover md:max-h-none"
                 />
               </div>
               <a
