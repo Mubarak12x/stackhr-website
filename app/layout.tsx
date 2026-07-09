@@ -5,6 +5,7 @@ import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.stackhr.app'),
   title: 'StackHR | Complete HR, Payroll & Spend Control for African SMEs',
   description:
     'All-in-one people operations, payroll automation, and expense management built for Nigerian and African businesses.',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
     title: 'StackHR | Complete HR, Payroll & Spend Control for African SMEs',
     description:
       'All-in-one people operations, payroll automation, and expense management built for Nigerian and African businesses.',
-    url: 'https://stackhr.app',
+    url: 'https://www.stackhr.app',
     siteName: 'StackHR',
     type: 'website',
   },
