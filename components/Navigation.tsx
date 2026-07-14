@@ -8,11 +8,15 @@ import { CalendlyEmbed } from './CalendlyEmbed';
 const TAGLINE = 'Manage your people, payroll, and business spending in one place';
 
 const navLinks = [
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Features', href: '#features' },
-  { label: 'About', href: '#about' },
+  { label: 'Pricing', href: '/#pricing' },
+  { label: 'Features', href: '/#features' },
+  { label: 'About', href: '/#about' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Compliance', href: '#status' },
+  { label: 'Compliance', href: '/#status' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Compliance (NDPA)', href: '/compliance' },
+  { label: 'Data Processing', href: '/data-processing' },
 ];
 
 export function Navigation() {

@@ -1,15 +1,46 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '../../components/JsonLd';
 import { LegalPage, LegalSection } from '../../components/LegalPage';
 
+const TITLE = 'Terms of Service | StackHR';
+const DESCRIPTION = 'Terms of Service for StackHR — the people, payroll, and spend management platform for African SMEs.';
+const URL = 'https://www.stackhr.app/terms';
+
 export const metadata: Metadata = {
-  title: 'Terms of Service | StackHR',
-  description: 'Terms of Service for StackHR — the people, payroll, and spend management platform for African SMEs.',
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: URL,
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL,
+    siteName: 'StackHR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
+
+const termsJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${URL}#webpage`,
+  url: URL,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { '@id': 'https://www.stackhr.app/#website' },
 };
 
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of Service">
+      <JsonLd data={termsJsonLd} />
       <LegalSection heading="Acceptance of Terms">
         <p>
           By creating a StackHR account or using the service in any way, you agree to these Terms of Service.

@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { JsonLd } from '../../../components/JsonLd';
 import { blogPosts } from '../../../lib/blog-posts';
 import { OutlineButton } from '../../../components/Buttons';
+
+const SITE_URL = 'https://www.stackhr.app';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -15,15 +18,26 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = blogPosts.find((p) => p.slug === params.slug);
   if (!post) return {};
+  const title = `${post.title} | StackHR Blog`;
+  const url = `${SITE_URL}/blog/${post.slug}`;
   return {
-    title: `${post.title} | StackHR Blog`,
+    title,
     description: post.excerpt,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
-      title: `${post.title} | StackHR Blog`,
+      title,
       description: post.excerpt,
-      url: `https://stackhr.app/blog/${post.slug}`,
+      url,
       siteName: 'StackHR',
       type: 'article',
+      publishedTime: post.date,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: post.excerpt,
     },
   };
 }
@@ -32,8 +46,33 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = blogPosts.find((p) => p.slug === params.slug);
   if (!post) notFound();
 
+  const url = `${SITE_URL}/blog/${post.slug}`;
+  const postJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        '@id': `${url}#webpage`,
+        url,
+        name: `${post.title} | StackHR Blog`,
+        description: post.excerpt,
+        datePublished: post.date,
+        isPartOf: { '@id': `${SITE_URL}/#website` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+          { '@type': 'ListItem', position: 3, name: post.title, item: url },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="container py-16 md:py-24">
+      <JsonLd data={postJsonLd} />
       <Link
         href="/blog"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0066FF] transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066FF] focus-visible:ring-offset-2"

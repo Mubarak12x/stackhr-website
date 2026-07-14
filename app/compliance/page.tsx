@@ -1,16 +1,47 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '../../components/JsonLd';
 import { LegalPage, LegalSection } from '../../components/LegalPage';
 
+const TITLE = 'Compliance Overview | StackHR';
+const DESCRIPTION =
+  'How StackHR aligns with the Nigeria Data Protection Act 2023 (NDPA) and supports payroll and tax compliance for African businesses.';
+const URL = 'https://www.stackhr.app/compliance';
+
 export const metadata: Metadata = {
-  title: 'Compliance Overview | StackHR',
-  description:
-    'How StackHR aligns with the Nigeria Data Protection Act 2023 (NDPA) and supports payroll and tax compliance for African businesses.',
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: URL,
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL,
+    siteName: 'StackHR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
+
+const complianceJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${URL}#webpage`,
+  url: URL,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { '@id': 'https://www.stackhr.app/#website' },
 };
 
 export default function CompliancePage() {
   return (
     <LegalPage title="Compliance Overview">
+      <JsonLd data={complianceJsonLd} />
       <LegalSection heading="Our Approach">
         <p>
           StackHR is built to support African businesses operating under Nigerian regulation. We design our

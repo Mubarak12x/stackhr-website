@@ -6,16 +6,16 @@ const columns = [
   {
     title: 'Product',
     links: [
-      { label: 'Pricing', href: '#pricing' },
-      { label: 'Features', href: '#features' },
+      { label: 'Pricing', href: '/#pricing' },
+      { label: 'Features', href: '/#features' },
       { label: 'Security & Data', href: '/data-processing' },
-      { label: 'Compliance', href: '#status' },
+      { label: 'Compliance', href: '/#status' },
     ],
   },
   {
     title: 'Company',
     links: [
-      { label: 'About StackHR', href: '#about' },
+      { label: 'About StackHR', href: '/#about' },
       { label: 'Blog', href: '/blog' },
       { label: 'Contact', href: 'mailto:hello@stackhr.app' },
     ],

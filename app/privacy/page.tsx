@@ -1,16 +1,47 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '../../components/JsonLd';
 import { LegalPage, LegalSection } from '../../components/LegalPage';
 
+const TITLE = 'Privacy Policy | StackHR';
+const DESCRIPTION =
+  'How StackHR collects, uses, and protects personal data — including employee records, NIN, BVN, and payroll information.';
+const URL = 'https://www.stackhr.app/privacy';
+
 export const metadata: Metadata = {
-  title: 'Privacy Policy | StackHR',
-  description:
-    'How StackHR collects, uses, and protects personal data — including employee records, NIN, BVN, and payroll information.',
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: URL,
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL,
+    siteName: 'StackHR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
+
+const privacyJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${URL}#webpage`,
+  url: URL,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { '@id': 'https://www.stackhr.app/#website' },
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy">
+      <JsonLd data={privacyJsonLd} />
       <LegalSection heading="Introduction">
         <p>
           StackHR is a people, payroll, and spend management platform built for African SMEs. This Privacy

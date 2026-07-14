@@ -1,10 +1,40 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '../../components/JsonLd';
 import { blogPosts } from '../../lib/blog-posts';
 
+const TITLE = 'Blog | StackHR';
+const DESCRIPTION = 'Product updates, compliance guides, and insights for African HR and finance teams.';
+const URL = 'https://www.stackhr.app/blog';
+
 export const metadata: Metadata = {
-  title: 'Blog | StackHR',
-  description: 'Product updates, compliance guides, and insights for African HR and finance teams.',
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: URL,
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL,
+    siteName: 'StackHR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
+
+const blogJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${URL}#webpage`,
+  url: URL,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { '@id': 'https://www.stackhr.app/#website' },
 };
 
 function formatDate(iso: string) {
@@ -16,6 +46,7 @@ const sorted = [...blogPosts].sort((a, b) => b.date.localeCompare(a.date));
 export default function BlogPage() {
   return (
     <main className="container py-16 md:py-24">
+      <JsonLd data={blogJsonLd} />
       <div className="space-y-4 text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-electric-blue">StackHR Blog</p>
         <h1 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl">

@@ -1,16 +1,47 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '../../components/JsonLd';
 import { LegalPage, LegalSection } from '../../components/LegalPage';
 
+const TITLE = 'Data Processing Overview | StackHR';
+const DESCRIPTION =
+  'How StackHR processes, stores, and protects customer data — including storage location, data isolation, retention, and sub-processors.';
+const URL = 'https://www.stackhr.app/data-processing';
+
 export const metadata: Metadata = {
-  title: 'Data Processing Overview | StackHR',
-  description:
-    'How StackHR processes, stores, and protects customer data — including storage location, data isolation, retention, and sub-processors.',
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: URL,
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL,
+    siteName: 'StackHR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
+
+const dataProcessingJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${URL}#webpage`,
+  url: URL,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { '@id': 'https://www.stackhr.app/#website' },
 };
 
 export default function DataProcessingPage() {
   return (
     <LegalPage title="Data Processing Overview">
+      <JsonLd data={dataProcessingJsonLd} />
       <LegalSection heading="What We Process">
         <p>
           StackHR processes personal data on behalf of our customers, who are the data controllers. We act
